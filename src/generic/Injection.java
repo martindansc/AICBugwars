@@ -12,6 +12,7 @@ public class Injection {
     public Unit unit;
     public Objectives objectives;
     public Pathfinder pathfinder;
+    public Behaviour behaviour;
 
     Injection(UnitController unitController, Unit unit) {
         this.unitController = unitController;
@@ -22,6 +23,7 @@ public class Injection {
         this.unit = unit;
         objectives = new Objectives(this);
         pathfinder = new Pathfinder(this);
+        behaviour = new Behaviour();
 
     }
 

@@ -35,10 +35,38 @@ public class Map {
     }
 
     public int locationToInt(int locX, int locY) {
-        return (locX - offsetX) * 100 + (locY - offsetY);
+        int x = (locX - offsetX);
+        if(x < 0) x += MAX_SIZE_MAP;
+
+        int y = (locY - offsetY);
+        if(y < 0) y += MAX_SIZE_MAP;
+
+        return x * MAX_SIZE_MAP + y;
+    }
+
+    public Location intToLocation(int loc) {
+        int x = loc / MAX_SIZE_MAP + offsetX;
+        if(x > MAX_SIZE_MAP) x -= MAX_SIZE_MAP;
+
+        int y = loc / MAX_SIZE_MAP + offsetX;
+        if(y > MAX_SIZE_MAP) y -= MAX_SIZE_MAP;
+
+        return new Location(x, y);
     }
 
     public int locationToInt(Location loc) {
         return locationToInt(loc.x, loc.y);
+    }
+
+    // general prop
+
+    public int getValueInLocation(int key, Location loc) {
+        int id = key + locationToInt(loc.x, loc.y);
+        return in.unitController.read(key + id);
+    }
+
+    public void setValueInLocation(int key, Location loc, int value) {
+        int id = key + locationToInt(loc.x, loc.y);
+        in.unitController.write(key + id, value);
     }
 }

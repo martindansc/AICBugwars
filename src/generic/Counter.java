@@ -4,10 +4,11 @@ public class Counter {
 
     private Injection in;
     
-    public int COUNTERS_SPACE = 3;
+    public int COUNTERS_SPACE;
 
     Counter(Injection in) {
         this.in = in;
+        COUNTERS_SPACE = this.getCounterSpace();
     }
     
     public void reset(int key) {
@@ -41,5 +42,9 @@ public class Counter {
     public int readThisRoundOnly(int key) {
         int realId = key + (in.unitController.getRound())%COUNTERS_SPACE;
         return in.unitController.read(realId);
+    }
+
+    public int getCounterSpace() {
+        return 3;
     }
 }
