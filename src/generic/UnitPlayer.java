@@ -7,9 +7,12 @@ public class UnitPlayer {
     Injection in;
 
     public void run(UnitController uc) {
-        in = new Injection(uc, instantiateClass());
+        in = new Injection(uc);
+        instantiateUnitClass(in);
 
         while (true){
+            //if(uc.getRound() > 200) return;
+
             in.unit.play();
             uc.yield();
         }
@@ -17,12 +20,13 @@ public class UnitPlayer {
     }
 
 
-    private Unit instantiateClass() {
+    private void instantiateUnitClass(Injection in) {
         UnitType myType = in.unitController.getType();
         if(UnitType.QUEEN == myType) {
-            return new BWQueen(in);
+            in.setUnit(new BWQueen(in));
         }
-
-        return null;
+        else if(UnitType.ANT == myType) {
+            in.setUnit(new BWAnt(in));
+        }
     }
 }

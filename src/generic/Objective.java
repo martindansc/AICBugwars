@@ -9,9 +9,10 @@ public class Objective {
     private int locationX;
     private int locationY;
     private int objectiveClass;
-    private int units;
+    private int units = 1;
+    private int needsMapLocation = 0;
 
-    int UNIT_COUNTER = 4;
+    int UNIT_COUNTER = 5;
 
     Objective(Injection in) {
         this.in = in;
@@ -22,11 +23,11 @@ public class Objective {
         this.sharedArrayPosition = sharedArrayPosition;
     }
 
-    Objective(Injection in, Location loc, int type) {
+    Objective(Injection in, Location loc, int objectiveClass) {
         this.in = in;
         this.locationX = loc.x;
         this.locationY = loc.y;
-        this.objectiveClass = type;
+        this.objectiveClass = objectiveClass;
     }
 
     public void setUnitNumber(int num) {
@@ -38,11 +39,11 @@ public class Objective {
 
     public int getObjectiveClass() {
         if(sharedArrayPosition != -1) {
-            return in.unitController.read(sharedArrayPosition );
+            this.objectiveClass = in.unitController.read(sharedArrayPosition );
         }
-        else {
-            return this.objectiveClass;
-        }
+
+        return this.objectiveClass;
+
     }
 
     public void save(int id) {
@@ -51,9 +52,22 @@ public class Objective {
         in.unitController.write(sharedArrayPosition + 1, locationX);
         in.unitController.write(sharedArrayPosition + 2, locationY);
         in.unitController.write(sharedArrayPosition + 3, units);
+        in.unitController.write(sharedArrayPosition + 4, needsMapLocation);
 
         // counter
         in.counter.reset(id + UNIT_COUNTER);
+
+        // map location
+        if(needsMapLocation == 1) {
+            Location myLocation = getLocation();
+            if(in.map.getValueInLocation(in.constants.SHARED_OBJECTIVES_MAP_ID, myLocation) == 0) {
+                in.map.setValueInLocation(in.constants.SHARED_OBJECTIVES_MAP_ID, myLocation, id);
+            }
+            else {
+               in.unitController.println("Can't add objective to location");
+            }
+        }
+
     }
 
     public Location getLocation() {
@@ -65,16 +79,79 @@ public class Objective {
         return new Location(this.locationX, this.locationY);
     }
 
+    public int getNeedsMapLocation() {
+        if(sharedArrayPosition != -1) {
+            this.needsMapLocation = in.unitController.read(sharedArrayPosition + 4);
+        }
+
+        return this.needsMapLocation;
+    }
+
     public void claim() {
         in.counter.increaseValueByOne(sharedArrayPosition + UNIT_COUNTER);
     }
 
     public boolean isFull() {
-        units = in.unitController.read(units);
-        return units >= in.counter.read(sharedArrayPosition + UNIT_COUNTER);
+        return getUnitNumber() <= getCounterUnits();
     }
 
-    public int getObjectiveSize() {
-        return 3 + in.counter.getCounterSpace();
+    public int getCounterUnits() {
+        return in.counter.read(sharedArrayPosition + UNIT_COUNTER);
+    }
+
+    public int getCounterUnitsThisRound() {
+        if(sharedArrayPosition != -1) {
+            return in.counter.readThisRoundOnly(sharedArrayPosition + UNIT_COUNTER);
+        }
+        return -1;
+    }
+
+    public int getUnitNumber() {
+        if(sharedArrayPosition != -1) {
+            this.units = in.unitController.read(sharedArrayPosition + 3);
+        }
+        return this.units;
+    }
+
+    public void remove() {
+        Location myLocation = getLocation();
+
+        int needsMapLocation = getNeedsMapLocation();
+        if(needsMapLocation == 1 &&
+                in.map.getValueInLocation(in.constants.SHARED_OBJECTIVES_MAP_ID, myLocation) == sharedArrayPosition) {
+            in.map.setValueInLocation(in.constants.SHARED_OBJECTIVES_MAP_ID,  myLocation, 0);
+        }
+
+        int size =  getObjectiveSize();
+        for(int i = 0; i < size; i++) {
+            in.unitController.write(sharedArrayPosition + i, 0);
+        }
+    }
+
+    public boolean stillPresent() {
+        int readClass = in.unitController.read(sharedArrayPosition);
+        if(this.objectiveClass != 0 && readClass != this.objectiveClass) {
+            return false;
+        }
+
+        int readLocationX = in.unitController.read(sharedArrayPosition + 1);
+        if(this.locationX != 0 && readLocationX != this.locationX) {
+            return false;
+        }
+
+        int readLocationY = in.unitController.read(sharedArrayPosition + 2);
+        if(this.locationY != 0 && readLocationY != this.locationY) {
+            return false;
+        }
+
+        this.objectiveClass = readClass;
+        this.locationX = readLocationX;
+        this.locationY = readLocationY;
+
+        return true;
+    }
+
+    public static int getObjectiveSize() {
+        return 5 + Counter.getCounterSpace();
     }
 }

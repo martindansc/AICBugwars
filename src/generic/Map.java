@@ -8,12 +8,16 @@ public class Map {
     int offsetX;
     int offsetY;
 
-    int MAX_SIZE_MAP = 80;
-    int INFO_PER_CELL = 10;
-    int INFO_STATIC_SIZE = 2;
+    int MAX_SIZE_MAP;
+    int INFO_PER_CELL;
+    int INFO_STATIC_SIZE;
 
     Map(Injection in) {
         this.in = in;
+
+        MAX_SIZE_MAP = getMapMaxSize();
+        INFO_PER_CELL = getInfoCellSize();
+        INFO_STATIC_SIZE = getStaticInfoSize();
 
         int readX = in.unitController.read(in.constants.SHARED_MAP_ID);
         if(readX == 0) {
@@ -33,6 +37,8 @@ public class Map {
     private int getIndexMap(int locX, int locY) {
         return in.constants.SHARED_MAP_ID + INFO_STATIC_SIZE + locationToInt(locX, locY) * INFO_PER_CELL;
     }
+
+    // helpers
 
     public int locationToInt(int locX, int locY) {
         int x = (locX - offsetX);
@@ -58,6 +64,10 @@ public class Map {
         return locationToInt(loc.x, loc.y);
     }
 
+    public int distanceBetween(Location loc1, Location loc2) {
+        return loc1.distanceSquared(loc2);
+    }
+
     // general prop
 
     public int getValueInLocation(int key, Location loc) {
@@ -68,5 +78,27 @@ public class Map {
     public void setValueInLocation(int key, Location loc, int value) {
         int id = key + locationToInt(loc.x, loc.y);
         in.unitController.write(key + id, value);
+    }
+
+    // Space functions
+
+    public static int getSimpleMapSpace() {
+        return getMapMaxSize() * getMapMaxSize();
+    }
+
+    public static int getMapSpace() {
+       return getStaticInfoSize() + getInfoCellSize() * getMapMaxSize() * getMapMaxSize();
+    }
+
+    public static int getMapMaxSize() {
+        return 80;
+    }
+
+    public static int getInfoCellSize() {
+        return 20;
+    }
+
+    public static int getStaticInfoSize() {
+        return 2;
     }
 }

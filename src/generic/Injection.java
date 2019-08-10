@@ -14,17 +14,19 @@ public class Injection {
     public Pathfinder pathfinder;
     public Behaviour behaviour;
 
-    Injection(UnitController unitController, Unit unit) {
+    Injection(UnitController unitController) {
         this.unitController = unitController;
+        constants = new Constants();
         macro = new Macro(this);
         map = new Map(this);
-        constants = new Constants();
         counter = new Counter(this);
-        this.unit = unit;
         objectives = new Objectives(this);
         pathfinder = new Pathfinder(this);
         behaviour = new Behaviour();
+    }
 
+    void setUnit(Unit unit) {
+        this.unit = unit;
     }
 
 }

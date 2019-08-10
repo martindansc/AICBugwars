@@ -1,5 +1,7 @@
 package generic;
 
+import bugwars.*;
+
 public class Counter {
 
     private Injection in;
@@ -8,7 +10,7 @@ public class Counter {
 
     Counter(Injection in) {
         this.in = in;
-        COUNTERS_SPACE = this.getCounterSpace();
+        COUNTERS_SPACE = getCounterSpace();
     }
     
     public void reset(int key) {
@@ -34,7 +36,7 @@ public class Counter {
 
     public int read(int key) {
         this.roundClear(key);
-        int realId = key + (in.unitController.getRound() - 1)%COUNTERS_SPACE;
+        int realId = key + (in.unitController.getRound() + COUNTERS_SPACE - 1)%COUNTERS_SPACE;
         int realIdThisRound = key + (in.unitController.getRound())%COUNTERS_SPACE;
         return Math.max(in.unitController.read(realId), in.unitController.read(realIdThisRound));
     }
@@ -44,7 +46,9 @@ public class Counter {
         return in.unitController.read(realId);
     }
 
-    public int getCounterSpace() {
+    // space
+
+    public static int getCounterSpace() {
         return 3;
     }
 }

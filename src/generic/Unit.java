@@ -7,6 +7,8 @@ public abstract class Unit {
     Objective objective;
     Location objectiveLocation;
 
+    int myType;
+
     int behaviour;
 
     MicroInfo[] MicroInfo;
@@ -15,12 +17,16 @@ public abstract class Unit {
     Unit(Injection in) {
         this.in = in;
         behaviour = in.behaviour.SAFE;
+        myType = unitTypeToInt(in.unitController.getType());
     }
 
     public abstract void selectObjective();
 
     public void move() {
-
+        if(bestMicro == null) {
+            Direction dir = in.pathfinder.getNextLocationTarget(objectiveLocation);
+            if(dir != null) in.unitController.move(dir);
+        }
     }
 
     public boolean compareMicro(MicroInfo a, MicroInfo b) {
@@ -29,7 +35,7 @@ public abstract class Unit {
     }
 
     public void claimObjective(){
-        if(objectiveLocation != null) {
+        if(objective != null) {
             objective.claim();
         }
     }
@@ -49,13 +55,11 @@ public abstract class Unit {
         }
     }
 
-    public void chooseBestMicro() {
+    public void chooseBestMicro() {}
 
-    }
+    public void attack() {}
 
-    public void attack() {
-
-    }
+    public void beforeAnything() {}
 
     public void beforePlay(){}
 
@@ -66,8 +70,15 @@ public abstract class Unit {
     }
 
     public void play() {
+        this.beforeAnything();
+
+        in.counter.increaseValueByOne(in.constants.SHARED_UNIT_COUNTER);
+        this.increaseCounterUnitType(myType);
+
         this.selectObjective();
-        this.objectiveLocation = this.objective.getLocation();
+        if(objective != null) {
+            this.objectiveLocation = this.objective.getLocation();
+        }
 
         this.updateMicro();
         this.chooseBestMicro();
@@ -81,5 +92,58 @@ public abstract class Unit {
 
         this.afterPlay();
     }
+
+
+    // Unit utils
+    int unitTypeToInt(UnitType unitType) {
+        UnitType types[] = UnitType.values();
+        for(int i = 0; i < types.length; i++) {
+            if(types[i] == unitType) return i;
+        }
+        return -1;
+    }
+
+    UnitType intToUnitType(int type) {
+        return UnitType.values()[type];
+    }
+
+    public void addCocoonUnits() {
+        int number = 0;
+        UnitInfo[] units = in.unitController.senseUnits(5);
+        for (UnitInfo unit: units) {
+            if(unit != null && unit.isCocoon()) {
+                increaseCounterUnitType(unit.getType());
+                number++;
+            }
+        }
+        in.counter.increaseValue(in.constants.SHARED_UNIT_COUNTER, number);
+    }
+
+    // Unit counters
+
+    public void increaseCounterUnitType(UnitType unitType) {
+        int type = unitTypeToInt(unitType);
+        increaseCounterUnitType(type);
+    }
+
+    public void increaseCounterUnitType(int type) {
+        int counterId = getCounterIdFromType(type);
+        in.counter.increaseValueByOne(counterId);
+    }
+
+    public int getCounterValueUnitType(UnitType unitType) {
+        int type = unitTypeToInt(unitType);
+        return getCounterValueUnitType(type);
+    }
+
+    public int getCounterValueUnitType(int type) {
+        int counterId = getCounterIdFromType(type);
+        return in.counter.read(counterId);
+    }
+
+    public int getCounterIdFromType(int type) {
+        return in.constants.SHARED_UNIT_COUNTER_TYPE + (type - 1) * Counter.getCounterSpace();
+    }
+
 
 }
