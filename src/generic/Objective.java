@@ -2,6 +2,8 @@ package generic;
 
 import bugwars.*;
 
+import java.util.Random;
+
 public class Objective {
     Injection in;
 
@@ -23,11 +25,11 @@ public class Objective {
         this.sharedArrayPosition = sharedArrayPosition;
     }
 
-    Objective(Injection in, Location loc, int objectiveClass) {
+    Objective(Injection in, Location loc) {
         this.in = in;
         this.locationX = loc.x;
         this.locationY = loc.y;
-        this.objectiveClass = objectiveClass;
+        this.objectiveClass = (int)(Math.random()*Integer.MAX_VALUE);
     }
 
     public void setUnitNumber(int num) {
@@ -68,6 +70,23 @@ public class Objective {
             }
         }
 
+    }
+
+    public void changeLocation(Location newLocation) {
+        if(getNeedsMapLocation() == 1) {
+            in.map.setValueInLocation(in.constants.SHARED_OBJECTIVES_MAP_ID,
+                    newLocation, sharedArrayPosition);
+            in.map.setValueInLocation(in.constants.SHARED_OBJECTIVES_MAP_ID,
+                    getLocation(), 0);
+        }
+
+        this.locationX = newLocation.x;
+        this.locationY = newLocation.y;
+
+        if(sharedArrayPosition != -1) {
+            in.unitController.write(sharedArrayPosition + 1, locationX);
+            in.unitController.write(sharedArrayPosition + 2, locationY);
+        }
     }
 
     public Location getLocation() {
@@ -129,25 +148,12 @@ public class Objective {
     }
 
     public boolean stillPresent() {
-        int readClass = in.unitController.read(sharedArrayPosition);
+        int readClass = getObjectiveClass();
         if(this.objectiveClass != 0 && readClass != this.objectiveClass) {
             return false;
         }
 
-        int readLocationX = in.unitController.read(sharedArrayPosition + 1);
-        if(this.locationX != 0 && readLocationX != this.locationX) {
-            return false;
-        }
-
-        int readLocationY = in.unitController.read(sharedArrayPosition + 2);
-        if(this.locationY != 0 && readLocationY != this.locationY) {
-            return false;
-        }
-
         this.objectiveClass = readClass;
-        this.locationX = readLocationX;
-        this.locationY = readLocationY;
-
         return true;
     }
 

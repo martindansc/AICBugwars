@@ -17,7 +17,7 @@ public class Constants {
 
     Constants() {
         SHARED_UNIT_COUNTER = add(Counter::getCounterSpace);
-        SHARED_UNIT_COUNTER_TYPE = add(() -> Counter.getCounterSpace() * UnitType.values().length);
+        SHARED_UNIT_COUNTER_TYPE = add(Unit::getCountersUnitTypeSpace);
 
         SHARED_OBJECTIVES_ID = add(Objectives::getObjectiveSpace);
 

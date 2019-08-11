@@ -27,7 +27,7 @@ public class BWAnt extends Unit {
 
         for(int i = 0; i < in.objectives.MAX_OBJECTIVES; i++) {
             Objective newObjective = in.objectives.getObjective(i, myType);
-            if(newObjective == null) return;
+            if(newObjective == null) continue;
 
             int newObjectiveDistance = in.map.distanceBetween(newObjective.getLocation(),
                     in.unitController.getLocation());

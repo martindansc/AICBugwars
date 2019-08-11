@@ -11,6 +11,9 @@ public abstract class Unit {
 
     int behaviour;
 
+    Direction lastDirectionMoved;
+    boolean moved = true;
+
     MicroInfo[] MicroInfo;
     MicroInfo bestMicro;
 
@@ -22,11 +25,20 @@ public abstract class Unit {
 
     public abstract void selectObjective();
 
+    private void move(Direction dir) {
+        moved = true;
+        lastDirectionMoved = dir;
+        in.unitController.move(dir);
+    }
+
     public void move() {
         if(bestMicro == null) {
             Direction dir = in.pathfinder.getNextLocationTarget(objectiveLocation);
-            if(dir != null) in.unitController.move(dir);
+            if(dir != null) {
+                move(dir);
+            }
         }
+
     }
 
     public boolean compareMicro(MicroInfo a, MicroInfo b) {
@@ -70,6 +82,8 @@ public abstract class Unit {
     }
 
     public void play() {
+        moved = false;
+
         this.beforeAnything();
 
         in.counter.increaseValueByOne(in.constants.SHARED_UNIT_COUNTER);
@@ -143,6 +157,10 @@ public abstract class Unit {
 
     public int getCounterIdFromType(int type) {
         return in.constants.SHARED_UNIT_COUNTER_TYPE + (type - 1) * Counter.getCounterSpace();
+    }
+
+    public static int getCountersUnitTypeSpace() {
+        return Counter.getCounterSpace() * UnitType.values().length;
     }
 
 

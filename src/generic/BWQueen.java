@@ -28,37 +28,44 @@ public class BWQueen extends Unit {
     }
 
     @Override
+    public void beforeAnything() {
+        addCocoonUnits();
+    }
+
+    @Override
     public void beforePlay() {
 
         Location myLocation = in.unitController.getLocation();
 
-        int antObjectiveType = unitTypeToInt(UnitType.ANT);
+        if(in.unitController.getRound() == 1) {
+            Location[] locations = in.unitController.getVisibleLocations(12);
 
-        antObjectivesNum = 0;
-        for(int i = 0; i < in.objectives.MAX_OBJECTIVES; i++) {
-            Objective newObjective = in.objectives.getObjective(i, antObjectiveType);
-            if(newObjective == null) break;
-            newObjective.remove();
-            antObjectivesNum++;
-        }
-
-        Location[] locations = in.unitController.getVisibleLocations(5);
-
-        for(Location location: locations) {
-            if(location.distanceSquared(myLocation) > 3) {
-                Objective newObjective = new Objective(in, location, 1);
-                in.objectives.addObjective(newObjective, unitTypeToInt(UnitType.ANT));
+            for(Location location: locations) {
+                if(location.distanceSquared(myLocation) > 4) {
+                    Objective newObjective = new Objective(in, location);
+                    in.objectives.addObjective(newObjective, unitTypeToInt(UnitType.ANT));
+                }
             }
         }
 
         if(getCounterValueUnitType(UnitType.ANT) < antObjectivesNum) {
             spawn(UnitType.ANT);
         }
+
     }
 
     @Override
-    public void beforeAnything() {
-        addCocoonUnits();
+    public void afterPlay() {
+        int antObjectiveType = unitTypeToInt(UnitType.ANT);
+        antObjectivesNum = 0;
+        for(int i = 0; i < in.objectives.MAX_OBJECTIVES; i++) {
+            Objective newObjective = in.objectives.getObjective(i, antObjectiveType);
+            if(newObjective == null) break;
+            if(moved) {
+                newObjective.changeLocation(newObjective.getLocation().add(lastDirectionMoved));
+            }
+            antObjectivesNum++;
+        }
     }
 
     public void spawn(UnitType unitType) {
