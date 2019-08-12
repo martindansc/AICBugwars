@@ -12,10 +12,12 @@ public abstract class Unit {
     int behaviour;
 
     Direction lastDirectionMoved;
+    Direction pathfinderDirection;
     boolean moved = true;
 
-    MicroInfo[] MicroInfo;
+    MicroInfo[] microInfo;
     MicroInfo bestMicro;
+
 
     Unit(Injection in) {
         this.in = in;
@@ -32,19 +34,50 @@ public abstract class Unit {
     }
 
     public void move() {
-        if(bestMicro == null) {
-            Direction dir = in.pathfinder.getNextLocationTarget(objectiveLocation);
-            if(dir != null) {
-                move(dir);
-            }
+        Direction dir =
+                in.unitController.getLocation().directionTo(bestMicro.moveLocation());
+
+        if(dir != null && dir != Direction.ZERO && in.unitController.canMove(dir)) {
+            move(dir);
         }
 
     }
 
-    public boolean compareMicro(MicroInfo a, MicroInfo b) {
-        // true means a is better than b
-        return true;
+    public void updatePathfinderDirection() {
+        if(objectiveLocation == null) pathfinderDirection = null;
+        else pathfinderDirection = in.pathfinder.getNextLocationTarget(objectiveLocation);
     }
+
+    public boolean compareMicroMove(MicroInfo a, MicroInfo b) {
+        // true means a is better than b
+        return computeMicroScore(a) > computeMicroScore(b);
+    }
+
+    public float computeMicroScore(MicroInfo a) {
+        // TODO: this should be changed to behaviours
+        if(!a.canMoveLocation) {
+            return Integer.MIN_VALUE;
+        }
+
+        float score = 0;
+
+        score -= a.numEnemies;
+
+        if(a.canKillEnemy()) {
+            score += 5;
+        }
+
+        if(a.enemyToAttack != null) {
+            score += 1;
+        }
+
+        if(a.isPathfinderDirection) {
+            score += 0.5;
+        }
+
+        return score;
+    }
+
 
     public void claimObjective(){
         if(objective != null) {
@@ -52,30 +85,59 @@ public abstract class Unit {
         }
     }
 
-    public void updateMicro(){
+    public void initMicro(){
         Location myLocation = in.unitController.getLocation();
-        MicroInfo[] microInfo = new MicroInfo[9];
+        microInfo = new MicroInfo[9];
         Direction[] directions = Direction.values();
         for (int i = 0; i < directions.length; i++) {
-            microInfo[i] = new MicroInfo(myLocation.add(directions[i]));
+            microInfo[i] = new MicroInfo(in, myLocation.add(directions[i]),
+                    pathfinderDirection == directions[i]);
         }
+    }
 
-        for (UnitInfo unitInfo : in.unitController.senseUnits()) {
-            for(int i = 0; i < directions.length; i++) {
-                microInfo[i].update(unitInfo);
+    public void updateMicro(UnitInfo unitInfo) {
+        Direction[] directions = Direction.values();
+        for(int i = 0; i < directions.length; i++) {
+            microInfo[i].update(unitInfo);
+        }
+    }
+
+    public void chooseBestMicro() {
+        bestMicro = microInfo[0];
+
+        Direction[] directions = Direction.values();
+        for(int i = 1; i < directions.length; i++) {
+            if(compareMicroMove( microInfo[i], bestMicro)) {
+                bestMicro = microInfo[i];
             }
         }
     }
 
-    public void chooseBestMicro() {}
+    public void attack(boolean beforeMove) {
+        if(beforeMove && bestMicro.needsToMoveToAttack) return;
 
-    public void attack() {}
+        Location loc = bestMicro.attackLocation();
+        if(loc != null) {
+            in.unitController.attack(loc);
+        }
+    }
 
     public void beforeAnything() {}
 
     public void beforePlay(){}
 
     public void afterPlay() {}
+
+    public void forEachUnit() {
+        UnitInfo[] units = in.unitController.senseUnits();
+        for (UnitInfo unit: units) {
+            if(in.unitController.getEnergyLeft() < 5000) return;
+            unitSensed(unit);
+            updateMicro(unit);
+        }
+    }
+
+    public void unitSensed(UnitInfo unit) {}
 
     public void setBehaviour(int behaviour) {
         this.behaviour = behaviour;
@@ -94,17 +156,27 @@ public abstract class Unit {
             this.objectiveLocation = this.objective.getLocation();
         }
 
-        this.updateMicro();
+        this.updatePathfinderDirection();
+
+        this.initMicro();
+
+        this.forEachUnit();
+
         this.chooseBestMicro();
 
         this.beforePlay();
 
-        if(in.unitController.canAttack()) this.attack();
+        if(in.unitController.canAttack()) this.attack(true);
         if(in.unitController.canMove()) this.move();
-        if(in.unitController.canAttack()) this.attack();
+        if(in.unitController.canAttack()) this.attack(false);
         if(objectiveLocation != null) this.claimObjective();
 
         this.afterPlay();
+
+        // debug objective
+        if(objectiveLocation != null) {
+            in.unitController.drawPoint(objectiveLocation, "red");
+        }
     }
 
 
@@ -121,16 +193,11 @@ public abstract class Unit {
         return UnitType.values()[type];
     }
 
-    public void addCocoonUnits() {
-        int number = 0;
-        UnitInfo[] units = in.unitController.senseUnits(5);
-        for (UnitInfo unit: units) {
-            if(unit != null && unit.isCocoon()) {
-                increaseCounterUnitType(unit.getType());
-                number++;
-            }
+    public void addCocoonUnit(UnitInfo unit) {
+        if(unit.isCocoon() && unit.getTeam() == in.unitController.getTeam()) {
+            increaseCounterUnitType(unit.getType());
+            in.counter.increaseValueByOne(in.constants.SHARED_UNIT_COUNTER);
         }
-        in.counter.increaseValue(in.constants.SHARED_UNIT_COUNTER, number);
     }
 
     // Unit counters

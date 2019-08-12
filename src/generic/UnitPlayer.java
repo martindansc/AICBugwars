@@ -11,7 +11,7 @@ public class UnitPlayer {
         instantiateUnitClass(in);
 
         while (true){
-            //if(uc.getRound() > 200) return;
+            if(uc.getRound() > 200) return;
 
             in.unit.play();
             uc.yield();
@@ -27,6 +27,9 @@ public class UnitPlayer {
         }
         else if(UnitType.ANT == myType) {
             in.setUnit(new BWAnt(in));
+        }
+        else if(UnitType.BEETLE == myType) {
+            in.setUnit(new BWBeetle(in));
         }
     }
 }

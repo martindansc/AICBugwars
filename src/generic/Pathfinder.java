@@ -21,7 +21,7 @@ public class Pathfinder {
     Location prevTarget = null; //previous target
     int stuckCounter = 0;
 
-    Direction getNextLocationTarget(Location target, Function<Location, Boolean> conditions) {
+    Direction getNextLocationTarget(Location target, Function<Direction, Boolean> conditions) {
         //No target? ==> bye!
         if (target == null) return null;
 
@@ -47,7 +47,7 @@ public class Pathfinder {
         //I rotate clockwise or counterclockwise (depends on 'rotateRight'). If I try to go out of the map I change the orientation
         //Note that we have to try at most 16 times since we can switch orientation in the middle of the loop. (It can be done more efficiently)
         for (int i = 0; i < 16; ++i) {
-            if (in.unitController.canMove(dir) && conditions.apply(myLoc.add(dir))) {
+            if (conditions.apply(dir)) {
                 return dir;
             }
             if (!rotate && myLoc.add(dir.rotateLeft()).distanceSquared(target) > myLoc.add(dir.rotateRight()).distanceSquared(target)) {
@@ -62,13 +62,13 @@ public class Pathfinder {
             else dir = dir.rotateLeft();
         }
 
-        if (in.unitController.canMove(dir) && conditions.apply(myLoc.add(dir))) return dir;
+        if (conditions.apply(dir)) return dir;
 
         return null;
     }
 
     Direction getNextLocationTarget(Location target) {
-        return getNextLocationTarget(target, ((Location location) -> true));
+        return getNextLocationTarget(target, ((Direction dir) -> in.unitController.canMove(dir)));
     }
 
     void resetPathfinding() {

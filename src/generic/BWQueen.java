@@ -28,14 +28,16 @@ public class BWQueen extends Unit {
     }
 
     @Override
-    public void beforeAnything() {
-        addCocoonUnits();
+    public void unitSensed(UnitInfo unit) {
+        addCocoonUnit(unit);
     }
 
     @Override
     public void beforePlay() {
 
-        Location myLocation = in.unitController.getLocation();
+        spawn(UnitType.BEETLE);
+
+        /*Location myLocation = in.unitController.getLocation();
 
         if(in.unitController.getRound() == 1) {
             Location[] locations = in.unitController.getVisibleLocations(12);
@@ -50,7 +52,7 @@ public class BWQueen extends Unit {
 
         if(getCounterValueUnitType(UnitType.ANT) < antObjectivesNum) {
             spawn(UnitType.ANT);
-        }
+        }*/
 
     }
 
