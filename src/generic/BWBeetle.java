@@ -9,6 +9,6 @@ public class BWBeetle extends Unit {
 
     @Override
     public void selectObjective() {
-        objectiveLocation = in.unitController.getEnemyQueensLocation()[0];
+        // objectiveLocation = in.unitController.getEnemyQueensLocation()[0];
     }
 }

@@ -5,7 +5,7 @@ import bugwars.*;
 public abstract class Unit {
     Injection in;
     Objective objective;
-    Location objectiveLocation;
+    Location objectiveLocation = null;
 
     int myType;
 
@@ -25,9 +25,11 @@ public abstract class Unit {
         myType = unitTypeToInt(in.unitController.getType());
     }
 
-    public abstract void selectObjective();
+    public void selectObjective() {
 
-    private void move(Direction dir) {
+    }
+
+    public void move(Direction dir) {
         moved = true;
         lastDirectionMoved = dir;
         in.unitController.move(dir);
@@ -172,11 +174,6 @@ public abstract class Unit {
         if(objectiveLocation != null) this.claimObjective();
 
         this.afterPlay();
-
-        // debug objective
-        if(objectiveLocation != null) {
-            in.unitController.drawPoint(objectiveLocation, "red");
-        }
     }
 
 

@@ -6,9 +6,12 @@ public class UnitPlayer {
 
     Injection in;
 
+    boolean tests = false;
+
     public void run(UnitController uc) {
         in = new Injection(uc);
-        instantiateUnitClass(in);
+        if(!tests) instantiateUnitClass(in);
+        else tests(in);
 
         while (true){
             if(uc.getRound() > 200) return;
@@ -16,9 +19,7 @@ public class UnitPlayer {
             in.unit.play();
             uc.yield();
         }
-
     }
-
 
     private void instantiateUnitClass(Injection in) {
         UnitType myType = in.unitController.getType();
@@ -31,5 +32,10 @@ public class UnitPlayer {
         else if(UnitType.BEETLE == myType) {
             in.setUnit(new BWBeetle(in));
         }
+    }
+
+    private void tests(Injection in) {
+        // check that counters work correctly
+        in.setUnit(new CounterTests(in));
     }
 }

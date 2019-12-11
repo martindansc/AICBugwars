@@ -20,12 +20,19 @@ public class Counter {
     }
 
     public void roundClear(int key) {
-        in.unitController.write(key + (in.unitController.getRound() + 1)%COUNTERS_SPACE, 0);
+        int shift = in.unitController.getRound() & 1;
+        if(in.unitController.read(key + shift) != in.unitController.getRound()) {
+            in.unitController.write(key + shift, in.unitController.getRound());
+            in.unitController.write(key + shift + 2, 0);
+        }
     }
 
     public void increaseValue(int key, int amount) {
         this.roundClear(key);
-        int realId = key + in.unitController.getRound()%COUNTERS_SPACE;
+
+        int shift = in.unitController.getRound() & 1;
+
+        int realId = key + 2 + shift;
         int value = in.unitController.read(realId);
         in.unitController.write(realId, value + amount);
     }
@@ -35,20 +42,35 @@ public class Counter {
     }
 
     public int read(int key) {
-        this.roundClear(key);
-        int realId = key + (in.unitController.getRound() + COUNTERS_SPACE - 1)%COUNTERS_SPACE;
-        int realIdThisRound = key + (in.unitController.getRound())%COUNTERS_SPACE;
-        return Math.max(in.unitController.read(realId), in.unitController.read(realIdThisRound));
+        int lshift = in.unitController.getRound() & 1;
+        int rshift = (in.unitController.getRound() + 1) & 1;
+
+        int left = 0;
+        int right = 0;
+
+        if(in.unitController.read(key + lshift) == in.unitController.getRound()) {
+            left = in.unitController.read(key + lshift + 2);
+        }
+
+        if(in.unitController.read(key + rshift) == in.unitController.getRound() - 1) {
+            right = in.unitController.read(key + rshift + 2);
+        }
+
+        return Math.max(left, right);
     }
 
     public int readThisRoundOnly(int key) {
-        int realId = key + (in.unitController.getRound())%COUNTERS_SPACE;
-        return in.unitController.read(realId);
+        int lshift = in.unitController.getRound() & 1;
+        int left = 0;
+        if(in.unitController.read(key + lshift) != in.unitController.getRound()) {
+            left = in.unitController.read(key + lshift + 2);
+        }
+        return left;
     }
 
     // space
 
     public static int getCounterSpace() {
-        return 3;
+        return 4;
     }
 }

@@ -14,6 +14,17 @@ public class BWAnt extends Unit {
     }
 
     @Override
+    public void move() {
+
+        Direction dir =
+                in.unitController.getLocation().directionTo(objectiveLocation);
+
+        if(dir != null && dir != Direction.ZERO && in.unitController.canMove(dir)) {
+            move(dir);
+        }
+    }
+
+    @Override
     public void selectObjective() {
 
         // forget the objective if it's already covered by someone else

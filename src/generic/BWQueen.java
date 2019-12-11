@@ -24,7 +24,6 @@ public class BWQueen extends Unit {
             Direction dir = Direction.values()[randomNumber];
             objectiveLocation = in.unitController.getLocation().add(dir);
         }
-        else objectiveLocation = null;
     }
 
     @Override
@@ -35,12 +34,12 @@ public class BWQueen extends Unit {
     @Override
     public void beforePlay() {
 
-        spawn(UnitType.BEETLE);
+        //spawn(UnitType.BEETLE);
 
-        /*Location myLocation = in.unitController.getLocation();
+        Location myLocation = in.unitController.getLocation();
 
         if(in.unitController.getRound() == 1) {
-            Location[] locations = in.unitController.getVisibleLocations(12);
+            Location[] locations = in.unitController.getVisibleLocations(5);
 
             for(Location location: locations) {
                 if(location.distanceSquared(myLocation) > 4) {
@@ -52,7 +51,7 @@ public class BWQueen extends Unit {
 
         if(getCounterValueUnitType(UnitType.ANT) < antObjectivesNum) {
             spawn(UnitType.ANT);
-        }*/
+        }
 
     }
 
@@ -62,7 +61,7 @@ public class BWQueen extends Unit {
         antObjectivesNum = 0;
         for(int i = 0; i < in.objectives.MAX_OBJECTIVES; i++) {
             Objective newObjective = in.objectives.getObjective(i, antObjectiveType);
-            if(newObjective == null) break;
+            if(newObjective == null) continue;
             if(moved) {
                 newObjective.changeLocation(newObjective.getLocation().add(lastDirectionMoved));
             }

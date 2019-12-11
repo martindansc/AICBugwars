@@ -13,6 +13,7 @@ public class Injection {
     public Objectives objectives;
     public Pathfinder pathfinder;
     public Behaviour behaviour;
+    public LocationCounters locationCounters;
 
     Injection(UnitController unitController) {
         this.unitController = unitController;
@@ -20,6 +21,7 @@ public class Injection {
         macro = new Macro(this);
         map = new Map(this);
         counter = new Counter(this);
+        locationCounters = new LocationCounters(this);
         objectives = new Objectives(this);
         pathfinder = new Pathfinder(this);
         behaviour = new Behaviour();
