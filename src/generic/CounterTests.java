@@ -38,5 +38,17 @@ public class CounterTests extends TestUnit {
                 in.unitController.println("ERROR!!! Counter test 2");
             }
         }
+
+        if(in.unitController.getRound() == 3) {
+            if(in.counter.read(counter) != 0) {
+                in.unitController.println("ERROR!!! Counter test 4");
+            }
+        }
+
+        if(in.unitController.getRound() == 4) {
+            if(in.counter.read(counter) != 0) {
+                in.unitController.println("ERROR!!! Counter test 4");
+            }
+        }
     }
 }

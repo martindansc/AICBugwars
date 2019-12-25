@@ -34,25 +34,28 @@ public class BWQueen extends Unit {
     @Override
     public void beforePlay() {
 
+        int antObjectiveType = unitTypeToInt(UnitType.ANT);
+
         //spawn(UnitType.BEETLE);
 
         Location myLocation = in.unitController.getLocation();
 
-        if(in.unitController.getRound() == 1) {
-            Location[] locations = in.unitController.getVisibleLocations(5);
+        Location[] locations = in.unitController.getVisibleLocations(9);
 
-            for(Location location: locations) {
-                if(location.distanceSquared(myLocation) > 4) {
-                    Objective newObjective = new Objective(in, location);
-                    in.objectives.addObjective(newObjective, unitTypeToInt(UnitType.ANT));
-                }
-            }
+        if(in.unitController.getRound() == 1) {
+            Objective newObjective = new Objective(in, myLocation.add(2,0));
+            in.objectives.addObjective(newObjective, antObjectiveType);
+
+            newObjective = new Objective(in, myLocation.add(5,0));
+            in.objectives.addObjective(newObjective, antObjectiveType);
+
+            newObjective = new Objective(in, myLocation.add(0,1));
+            in.objectives.addObjective(newObjective, antObjectiveType);
         }
 
         if(getCounterValueUnitType(UnitType.ANT) < antObjectivesNum) {
             spawn(UnitType.ANT);
         }
-
     }
 
     @Override
