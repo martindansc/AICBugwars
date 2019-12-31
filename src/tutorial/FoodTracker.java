@@ -1,8 +1,6 @@
-package basic;
+package tutorial;
 
-import bugwars.Direction;
-import bugwars.Location;
-import bugwars.UnitController;
+import bugwars.*;
 
 public class FoodTracker {
     int MAX_MAP_SIZE = 64;

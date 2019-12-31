@@ -1,7 +1,6 @@
-package basic;
+package tutorial;
 
-import bugwars.UnitController;
-import bugwars.UnitType;
+import bugwars.*;
 
 public class UnitPlayer {
 

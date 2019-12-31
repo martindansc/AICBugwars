@@ -1,9 +1,6 @@
-package basic;
+package tutorial;
 
-import bugwars.FoodInfo;
-import bugwars.Location;
-import bugwars.UnitController;
-import bugwars.UnitInfo;
+import bugwars.*;
 
 public class Ant extends MyUnit {
 
@@ -109,7 +106,7 @@ public class Ant extends MyUnit {
             pathfinding.moveTo(myFood[0]);
         }
         else {
-            moveFarFromEnemies();
+            doMicro();
         }
     }
 

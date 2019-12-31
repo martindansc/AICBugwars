@@ -1,8 +1,6 @@
-package basic;
+package tutorial;
 
-import bugwars.Direction;
-import bugwars.Location;
-import bugwars.UnitController;
+import bugwars.*;
 
 public class Pathfinding {
     UnitController uc;

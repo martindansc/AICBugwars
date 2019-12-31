@@ -1,4 +1,4 @@
-package basic;
+package tutorial;
 
 import bugwars.*;
 
@@ -29,13 +29,52 @@ public abstract class MyUnit {
         counters = new Counter(uc);
     }
 
+    /* here we can declare the functions that all the units must have, but the behaviour
+       for each unit should be different.
+       For example, countMe function should add +1 to the unit type,
+       Ants must add one to Ant's counter, Bees to Bee's counter, etc. If we look at Ant class we will see
+       that exists a function called countMe() that adds one to the Ant's counter.
+       The function is called from UnitPlayer, so it must be declared that all the units have this function.
+     */
+
     abstract void play();
     abstract void countMe();
 
-    public void moveFarFromEnemies() {
+
+    /* Functions that can be used for all the units, that means that you can call this function from Ant, Bee, Beetle,
+       and any class that extends this class (MyUnit). This is useful to reuse common code for all the units.
+     */
+
+    public void doMicro() {
+        Location myLocation = uc.getLocation();
+        Direction[] directions = Direction.values();
+
+        // initialize the micros
+        MicroInfo[] microInfos = new MicroInfo[directions.length];
+        for(int i = 0; i < directions.length; i++) {
+            Location newLocation = myLocation.add(directions[i]);
+            microInfos[i] = new MicroInfo(newLocation, uc);
+        }
+
+        // update micros for each enemy
         UnitInfo[] enemies = uc.senseUnits(uc.getOpponent());
-        Direction bestMoveDirection = getFurthestDirectionFromUnits(enemies);
-        if(bestMoveDirection != null && uc.canMove(bestMoveDirection)) {
+        for(UnitInfo enemy: enemies) {
+            for(int i = 0; i < directions.length; i++) {
+                microInfos[i].update(enemy);
+            }
+        }
+
+        // choose best micro
+        MicroInfo bestMicro = microInfos[Helper.directionToInt(Direction.ZERO)];
+        for(MicroInfo micro: microInfos) {
+            if(uc.canMove(myLocation.directionTo(micro.loc)) && micro.ImBetterThan(bestMicro)) {
+                bestMicro = micro;
+            }
+        }
+
+        // move
+        Direction bestMoveDirection = myLocation.directionTo(bestMicro.loc);
+        if(uc.canMove(bestMoveDirection)) {
             uc.move(bestMoveDirection);
         }
     }
@@ -44,7 +83,7 @@ public abstract class MyUnit {
         FoodInfo[] foodSeen = uc.senseFood();
         for(FoodInfo foodInfo: foodSeen) {
             Location foodLocation = foodInfo.getLocation();
-            if(!isObstructed(foodLocation)) {
+            if(!uc.isObstructed(uc.getLocation(), foodLocation)) {
                 foodTracker.saveFoodSeen(foodInfo.getLocation());
             }
         }
@@ -69,42 +108,6 @@ public abstract class MyUnit {
             scores[Helper.directionToInt(opositeDirection.rotateRight())] += -0.7;
         }
         return scores;
-    }
-
-    public Direction getFurthestDirectionFromUnits(UnitInfo[] units) {
-        double[] scores = getDistanceDirectionFromUnits(units);
-        // from the scores we get index of the lowest value and we return the direction
-        // associated to it
-
-        double minScore = Double.MAX_VALUE;
-        int minIndex = -1;
-        for(int i = 0; i < scores.length; i++) {
-            if(minScore > scores[i] && uc.canMove(Helper.intToDirection(i))) {
-                minScore = scores[i];
-                minIndex = i;
-            }
-        }
-
-        // if we haven't found any valid direction...
-        if(minIndex == -1) {
-            return null;
-        }
-
-        return Helper.intToDirection(minIndex);
-    }
-
-     public boolean isObstructed(Location end) {
-        Location nextLocation = uc.getLocation();
-
-        while(!nextLocation.isEqual(end)) {
-
-            if(uc.hasObstacle(nextLocation)) {
-                return true;
-            }
-            nextLocation = nextLocation.add(nextLocation.directionTo(end));
-        }
-
-        return false;
     }
 
     public boolean tryGenericAttack() {

@@ -1,9 +1,6 @@
-package basic;
+package tutorial;
 
-import bugwars.Direction;
-import bugwars.UnitController;
-import bugwars.UnitInfo;
-import bugwars.UnitType;
+import bugwars.*;
 
 public class Queen extends MyUnit {
 
@@ -30,7 +27,7 @@ public class Queen extends MyUnit {
         else {
             /* We are a high value non combat unit and we are in danger!
                 we will try to escape from them! */
-            moveFarFromEnemies();
+            doMicro();
         }
     }
 

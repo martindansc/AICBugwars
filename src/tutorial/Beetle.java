@@ -1,7 +1,6 @@
-package basic;
+package tutorial;
 
-import bugwars.Location;
-import bugwars.UnitController;
+import bugwars.*;
 
 public class Beetle extends MyUnit {
 
@@ -27,7 +26,7 @@ public class Beetle extends MyUnit {
             pathfinding.moveTo(targetLocation);
         }
         else {
-            moveFarFromEnemies();
+            doMicro();
         }
     }
 
