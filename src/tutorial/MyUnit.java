@@ -67,7 +67,7 @@ public abstract class MyUnit {
         // choose best micro
         MicroInfo bestMicro = microInfos[Helper.directionToInt(Direction.ZERO)];
         for(MicroInfo micro: microInfos) {
-            if(uc.canMove(myLocation.directionTo(micro.loc)) && micro.ImBetterThan(bestMicro)) {
+            if(uc.canMove(myLocation.directionTo(micro.loc)) && micro.imBetterThan(bestMicro)) {
                 bestMicro = micro;
             }
         }
@@ -87,27 +87,6 @@ public abstract class MyUnit {
                 foodTracker.saveFoodSeen(foodInfo.getLocation());
             }
         }
-    }
-
-    // Given a list of units, return the distance scores from all of them for all the directions
-    public double[] getDistanceDirectionFromUnits(UnitInfo[] units) {
-        Direction[] allDirections = Direction.values();
-
-        double[] scores = new double[allDirections.length];
-        for (UnitInfo unit: units) {
-            Location unitLocation = unit.getLocation();
-            Direction dirToLocation = uc.getLocation().directionTo(unitLocation);
-
-            scores[Helper.directionToInt(dirToLocation)] += 1;
-            scores[Helper.directionToInt(dirToLocation.rotateLeft())] += 0.7;
-            scores[Helper.directionToInt(dirToLocation.rotateRight())] += 0.7;
-
-            Direction opositeDirection = dirToLocation.opposite();
-            scores[Helper.directionToInt(opositeDirection)] += -1;
-            scores[Helper.directionToInt(opositeDirection.rotateLeft())] += -0.7;
-            scores[Helper.directionToInt(opositeDirection.rotateRight())] += -0.7;
-        }
-        return scores;
     }
 
     public boolean tryGenericAttack() {

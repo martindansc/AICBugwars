@@ -2,6 +2,8 @@ package tutorial;
 import bugwars.*;
 
 
+// Class for storing information of a location, you can compare different micro infos to see
+// where is the best place to move
 public class MicroInfo {
 
     int numEnemies;
@@ -23,7 +25,7 @@ public class MicroInfo {
         if (d < minDistEnemy) minDistEnemy = d;
     }
 
-    boolean ImBetterThan(MicroInfo other) {
+    boolean imBetterThan(MicroInfo other) {
         if(numEnemies < other.numEnemies) return true;
         if(numEnemies > other.numEnemies) return false;
 

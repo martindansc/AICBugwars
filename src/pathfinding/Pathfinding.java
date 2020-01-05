@@ -1,6 +1,8 @@
-package tutorial;
+package pathfinding;
 
-import bugwars.*;
+import bugwars.Direction;
+import bugwars.Location;
+import bugwars.UnitController;
 
 public class Pathfinding {
     UnitController uc;
@@ -17,9 +19,6 @@ public class Pathfinding {
     Location prevTarget = null; //previous target
 
     void moveTo(Location target){
-        // SAFE CHECK - if we can't move we do nothing
-        if(!uc.canMove()) return;
-
         //No target? ==> bye!
         if (target == null) return;
 

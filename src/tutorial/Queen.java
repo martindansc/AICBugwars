@@ -20,8 +20,8 @@ public class Queen extends MyUnit {
         if(enemies.length == 0) {
             /* if there are no enemies close we move into a random direction.
                 consider that this strategy is normally a bad one, since what we
-                want is to explore the map as much as possible, cleverer things
-                can be done...  */
+                want is to explore the map as much as possible, protect the unit, etc.
+                cleverer things can be done...  */
             moveRandom();
         }
         else {
@@ -52,7 +52,7 @@ public class Queen extends MyUnit {
         int numAnts = counters.read(UNIT_INDEX_COUNTER_ANT);
         int numSeenCookies = foodTracker.getSeenCookies();
         if(enemies.length == 0 && numSeenCookies > 0 &&
-                (numAnts == 0 || numSeenCookies/numAnts >= 3)) {
+                (numAnts == 0 || numSeenCookies/numAnts >= 3) && numAnts < 20) {
             spawnType = UnitType.ANT;
         }
         else {

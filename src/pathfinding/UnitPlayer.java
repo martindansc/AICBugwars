@@ -1,13 +1,47 @@
-package tutorial;
+package pathfinding;
 
 import bugwars.*;
 
-public class Pathfinding {
-    UnitController uc;
+import java.nio.file.Path;
 
-    Pathfinding(UnitController unitController) {
-        uc = unitController;
+public class UnitPlayer {
+
+    //my UnitController
+    UnitController uc;
+    Pathfinding pathfinding;
+
+    public void run(UnitController uc) {
+        /*Insert here the code that should be executed only at the beginning of the unit's lifespan*/
+
+        this.uc = uc;
+        if (uc.getType() == UnitType.QUEEN) spawnBeetle();
+
+        pathfinding = new Pathfinding(uc);
+
+        while (true){
+            /*Insert here the code that should be executed every round*/
+
+            //If I'm a beetle and I can move this turn, I try to go to the first enemy queen
+            pathfinding.moveTo(uc.getEnemyQueensLocation()[0]);
+
+            uc.yield(); //End of turn
+        }
+
     }
+
+    void spawnBeetle(){
+        //initialize dir pointing to enemy queen
+        Direction dir = uc.getLocation().directionTo(uc.getEnemyQueensLocation()[0]);
+        for (int i = 0; i < 8; ++i){
+            if (uc.canSpawn(dir, UnitType.BEETLE)){
+                uc.spawn(dir, UnitType.BEETLE);
+                break;
+            }
+            dir = dir.rotateRight();
+        }
+    }
+
+    //*************PATHFINDING*********************//
 
     final int INF = 1000000;
 
@@ -17,9 +51,6 @@ public class Pathfinding {
     Location prevTarget = null; //previous target
 
     void moveTo(Location target){
-        // SAFE CHECK - if we can't move we do nothing
-        if(!uc.canMove()) return;
-
         //No target? ==> bye!
         if (target == null) return;
 
@@ -65,4 +96,5 @@ public class Pathfinding {
         lastObstacleFound = null;
         minDistToEnemy = INF;
     }
+
 }

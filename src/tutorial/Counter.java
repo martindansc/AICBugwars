@@ -3,6 +3,29 @@ package tutorial;
 
 import bugwars.UnitController;
 
+/* class for storing counters in the shared memory array
+   The usage is simple, choose a position of the array where you want to declare a counter,
+   make sure that no other class or method uses the 3 next positions (counters use 4 space),
+   and call functions passing the chosen position.
+
+   Example:
+   counter.increaseValueByOne(ARRAY_INDEX)
+   counter.read(ARRAY_INDEX)
+
+   As a better example, check unit counters in this sample project
+
+   Class implementation:
+   The class stores 4 values [round1, round2, value1, value2]. The idea is that we want to read
+   previous round counter if we are at round 2 we want to read the value of round 1. We do that
+   in order to allow all the units to increase the value of the counter (and not only the ones
+   that play before the current unit). When reading a value, we check that the round stored
+   is equal to the current round - 1 (with that, we know we are reading a valid value).
+
+   Before increasing the value of a counter, we need to check that the round stored is equal to
+   the current round, if not, we reset the value to 0 before increasing, since we are the first
+   unit to increase the value in this round.
+
+ */
 public class Counter {
 
     UnitController uc;
@@ -18,7 +41,7 @@ public class Counter {
         }
     }
 
-    public void roundClear(int key) {
+    private void roundClear(int key) {
         int shift = uc.getRound() & 1;
         if(uc.read(key + shift) != uc.getRound()) {
             uc.write(key + shift, uc.getRound());

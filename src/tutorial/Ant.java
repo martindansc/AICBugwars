@@ -57,7 +57,7 @@ public class Ant extends MyUnit {
             return false;
         }
 
-        // we get from the one that has more
+        // else, we get from the one that has more
         return a.getFood() > b.getFood();
     }
 
@@ -87,15 +87,6 @@ public class Ant extends MyUnit {
             }
         }
 
-    }
-
-    public boolean checkIfFoodAssigned() {
-        for(int i = 0; i < 3; i++) {
-            if(myFood[i] != null) {
-                return true;
-            }
-        }
-        return false;
     }
 
     public void move() {

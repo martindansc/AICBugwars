@@ -6,8 +6,10 @@ public class UnitPlayer {
 
     public void run(UnitController uc) {
 
+        // declare that we are a unit
         MyUnit me;
 
+        // instantiate the class according to our unit type
         UnitType myType = uc.getType();
         if(myType == UnitType.ANT) {
             me = new Ant(uc);
@@ -26,10 +28,14 @@ public class UnitPlayer {
         }
 
         while(true){
-
+            // MyUnit class should define all the below functions
+            // if it's not implemented,
+            // you have to declare it as abstract
             me.countMe();
             me.play();
             me.reportFood();
+
+            //if(uc.getRound() >500) return;
 
             uc.yield(); //End of turn
         }
